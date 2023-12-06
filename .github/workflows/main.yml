@@ -2,7 +2,12 @@ on: [push]
 name: Linux_Container_Workflow
 
 jobs:
-    build-and-deploy:
+  Install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: elstudio/action-install-azure-cli@main
+
+         build-and-deploy:
         runs-on: ubuntu-latest
         steps:
         # checkout the repo
