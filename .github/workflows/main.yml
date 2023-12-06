@@ -12,7 +12,7 @@ jobs:
     # checkout the repo
     - name: 'Checkout GitHub Action'
       uses: actions/checkout@main
-    - run: az upgrade
+    - run: az upgrade --yes
           
     - name: 'Login via Azure CLI'
       uses: azure/actions/login@v1
