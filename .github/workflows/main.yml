@@ -8,15 +8,7 @@ jobs:
         # checkout the repo
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@main
-        - name: Azure Login using OIDC
-          uses: ./.github/workflows/composite/azure-oidc-login
-          with:
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        - name: 'Run az commands'
-          run: |
-           az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          
         - name: 'Login via Azure CLI'
           uses: azure/login@v1.4.6
           with:
@@ -41,5 +33,6 @@ jobs:
             registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
             registry-username: ${{ secrets.REGISTRY_USERNAME }}
             registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+            allow-no-subscriptions: true
             name: aci-sampleapp
             location: 'Central India'
