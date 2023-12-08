@@ -23,7 +23,7 @@ jobs:
             password: ${{ secrets.REGISTRY_PASSWORD }}
         - run: |
             docker build . --file Dockerfile --tag my-image-name:$(date +%s) 
-            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/my-image-name:$(date +%s)}
+            docker push slaturka/slaturka:/my-image-name:$(date +%s)}
         - name: 'Deploy to Azure Container Instances'
           uses: 'azure/aci-deploy@v1'
           with:
