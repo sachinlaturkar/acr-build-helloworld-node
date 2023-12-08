@@ -14,6 +14,7 @@ jobs:
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
             allow-no-subscriptions: true
+             az account set --subscription 591010a4-08f4-4ee7-99aa-dfd9f95868d3
 
         - name: 'Build and push image'
           uses: azure/docker-login@v1
@@ -22,7 +23,6 @@ jobs:
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
         - run: |
-            az account set --subscription 591010a4-08f4-4ee7-99aa-dfd9f95868d3
             docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
         - name: 'Deploy to Azure Container Instances'
