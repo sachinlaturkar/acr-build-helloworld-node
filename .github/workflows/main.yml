@@ -25,7 +25,9 @@ jobs:
           enable-AzPSSession: true      
       - run: |
           az account show --output none
-          
+          az account set --subscription 591010a4-08f4-4ee7-99aa-dfd9f95868d3
+          az login --tenant 872977ee-58f3-4b74-b9a3-86565ac39edf
+   
       - name: 'Build and push image'
         uses: azure/docker-login@v1
         with:
