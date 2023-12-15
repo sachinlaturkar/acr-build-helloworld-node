@@ -1,0 +1,40 @@
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  id-token: write
+  contents: read
+name: Build & Deploy to ACI
+jobs:
+ build-and-deploy:
+  runs-on: ubuntu-latest
+  steps:
+    - name: ‘Checkout GitHub Action'
+      uses: actions/checkout@master
+    - name: ‘Login to Azure’
+      uses: azure/login@v1
+      with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: 'Build & Push'
+      uses: azure/docker-login@v1
+      with:
+       login-server: dmeazopenairegistry.azurecr.io
+       username: ${{ secrets.REGISTRY_USERNAME }}
+       password: ${{ secrets.REGISTRY_PASSWORD }}
+    - run: |
+          docker build . -t sampleapp:${{ github.sha }}
+          docker tag sampleapp:${{ github.sha }} dmeazopenairegistry.azurecr.io/sampleapp:${{ github.sha }}
+          docker push dmeazopenairegistry.azurecr.io/sampleapp:${{ github.sha }}
+    - name: 'Deploy to Azure Container Instances'
+      uses: 'azure/aci-deploy@v1'
+      with:
+       resource-group: dme-openai-azresearch-resource-group
+       dns-name-label: sampleapp
+       image: dmeazopenairegistry.azurecr.io/sampleapp:${{ github.sha }}
+       cpu: 1
+       memory: 1
+       registry-username: ${{ secrets.REGISTRY_USERNAME }}
+       registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+       name: sampleapp
+       location: 'Germany West Central'
