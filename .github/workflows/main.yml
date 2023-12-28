@@ -8,7 +8,7 @@ permissions:
 name: Build & Deploy to ACI
 jobs:
  build-and-deploy:
-  runs-on: ubuntu-latest
+  runs-on: self-hosted
   steps:
     - name: ‘Checkout GitHub Action'
       uses: actions/checkout@master
