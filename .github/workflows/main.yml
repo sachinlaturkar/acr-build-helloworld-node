@@ -1,54 +1,53 @@
+name: Build & Deploy to ACI
+
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main  # Replace with your desired branch
 
-permissions:
-  id-token: write
-  contents: read
-name: Build & Deploy to ACI
 jobs:
- build-and-deploy:
-  runs-on: self-hosted
-  steps:
-    - name: ‘Checkout GitHub Action'
-      uses: actions/checkout@master
-    - name: ‘Login to Azure’
-      uses: azure/login@v1
-      with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-          enable-AzPSSession: true
-    - name: Azure CLI script
-      uses: azure/CLI@v1
-      with:
-        azcliversion: latest
-        inlineScript: |
-          az account show
+  build-and-deploy:
+    runs-on: ubuntu-latest  # Use the appropriate runner (self-hosted or GitHub-hosted)
 
-    - name: Azure PowerShell script
-      uses: azure/powershell@v1
-      with:
-        azPSVersion: "latest"
-        inlineScript: |
-          Get-AzWebApp
-    - name: 'Build & Push'
-      uses: azure/docker-login@v1
-      with:
-       login-server: fisacr.azurecr.io
-       username: ${{ secrets.REGISTRY_USERNAME }}
-       password: ${{ secrets.REGISTRY_PASSWORD }}
-    - run: |
+    steps:
+      - name: Checkout GitHub Action
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az account show
+
+      - name: Azure PowerShell script
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Get-AzWebApp
+
+      - name: Build & Push
+        run: |
           docker build . -t sampleapp:${{ github.sha }}
           docker tag sampleapp:${{ github.sha }} fisacr.azurecr.io/sampleapp:${{ github.sha }}
+          docker login fisacr.azurecr.io -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }}
           docker push fisacr.azurecr.io/sampleapp:${{ github.sha }}
-    - name: 'Deploy to Azure Container Instances'
-      uses: 'azure/aci-deploy@v1'
-      with:
-       resource-group: GitHub_RG
-       dns-name-label: sampleapp
-       image: fisacr.azurecr.io/sampleapp:${{ github.sha }}
-       cpu: 1
-       memory: 1
-       registry-username: ${{ secrets.REGISTRY_USERNAME }}
-       registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-       name: sampleapp
-       location: 'Central India'
+
+      - name: Deploy to Azure Container Instances
+        uses: azure/aci-deploy@v1
+        with:
+          resource-group: GitHub_RG
+          dns-name-label: sampleapp
+          image: fisacr.azurecr.io/sampleapp:${{ github.sha }}
+          cpu: 1
+          memory: 1
+          location: 'Central India'
+          registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          name: sampleapp
