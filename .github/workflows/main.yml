@@ -19,22 +19,22 @@ jobs:
     - name: 'Build & Push'
       uses: azure/docker-login@v1
       with:
-       login-server: dmeazopenairegistry.azurecr.io
+       login-server: fisacr.azurecr.io
        username: ${{ secrets.REGISTRY_USERNAME }}
        password: ${{ secrets.REGISTRY_PASSWORD }}
     - run: |
           docker build . -t sampleapp:${{ github.sha }}
-          docker tag sampleapp:${{ github.sha }} dmeazopenairegistry.azurecr.io/sampleapp:${{ github.sha }}
-          docker push dmeazopenairegistry.azurecr.io/sampleapp:${{ github.sha }}
+          docker tag sampleapp:${{ github.sha }} fisacr.azurecr.io/sampleapp:${{ github.sha }}
+          docker push fisacr.azurecr.io/sampleapp:${{ github.sha }}
     - name: 'Deploy to Azure Container Instances'
       uses: 'azure/aci-deploy@v1'
       with:
-       resource-group: dme-openai-azresearch-resource-group
+       resource-group: GitHub_RG
        dns-name-label: sampleapp
-       image: dmeazopenairegistry.azurecr.io/sampleapp:${{ github.sha }}
+       image: fisacr.azurecr.io/sampleapp:${{ github.sha }}
        cpu: 1
        memory: 1
        registry-username: ${{ secrets.REGISTRY_USERNAME }}
        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
        name: sampleapp
-       location: 'Germany West Central'
+       location: 'Central India'
